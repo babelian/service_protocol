@@ -10,8 +10,6 @@ PATH
   specs:
     service_protocol (1.0.0)
       rack (>= 2.0.0)
-      redis (= 4.1.0)
-      redis-queue (= 0.1.0)
       request_store (>= 1.4.1)
 
 GEM
@@ -31,9 +29,6 @@ GEM
     rack-test (0.8.3)
       rack (>= 1.0, < 3)
     rake (12.3.2)
-    redis (4.1.0)
-    redis-queue (0.1.0)
-      redis (>= 3.3.5, < 5)
     request_store (1.4.1)
       rack (>= 1.4)
     rspec (3.7.0)

@@ -41,11 +41,11 @@ module ServiceProtocol
 
       def adapter
         @adapter ||= begin
-          kind = ENV['SERVICE_PROTOCOL'] || 'web'
-          path = "service_protocol/#{kind}_client"
-          require path
-          ServiceProtocol.constantizer(path)
-        end
+                       kind = ENV['SERVICE_PROTOCOL'] || 'web'
+                       ServiceProtocol.constantizer("service_protocol/#{kind}_client")
+                     rescue NameError
+                       ServiceProtocol.constantizer("service_protocol/#{kind}/client")
+                     end
       end
     end
 

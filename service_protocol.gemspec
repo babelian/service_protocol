@@ -15,8 +15,6 @@ Gem::Specification.new do |s|
   s.require_paths = %w[lib]
 
   s.add_runtime_dependency 'rack', '>= 2.0.0'
-  s.add_runtime_dependency 'redis', '4.1.0'
-  s.add_runtime_dependency 'redis-queue', '0.1.0'
   s.add_runtime_dependency 'request_store', '>= 1.4.1'
 
   s.add_development_dependency 'pry-byebug'

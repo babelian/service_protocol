@@ -7,11 +7,5 @@ services:
     command: rake spec
     volumes:
       - .:/app
-    links:
-      - redis
     environment:
       - SERVICE_PROTOCOL_TOKEN=123
-  redis:
-    image: redis:5.0.3-alpine
-    expose:
-      - '6379'

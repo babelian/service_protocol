@@ -41,8 +41,6 @@ module ServiceProtocol
   autoload :BaseClient,     'service_protocol/base_client'
   autoload :Configuration,  'service_protocol/configuration'
   autoload :LibClient,      'service_protocol/lib_client'
-  autoload :RedisClient,    'service_protocol/redis_client'
-  autoload :RedisServer,    'service_protocol/redis_server'
   autoload :ProxyAction,    'service_protocol/proxy_action'
   autoload :RemoteAction,   'service_protocol/remote_action'
   autoload :ValueObject,    'service_protocol/value_object'
