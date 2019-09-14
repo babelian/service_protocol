@@ -1,0 +1,28 @@
+require: rubocop-rspec
+AllCops:
+  RunExtraRailsCops: true
+  TargetRubyVersion: 2.5.3
+
+Lint/UselessAssignment:
+  Enabled: false
+Lint/AssignmentInCondition:
+  Enabled: false
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context', 'shared_context']
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*_spec.rb'
+    - 'spec/**/*_contexts.rb'
+
+Metrics/LineLength:
+  Max: 100
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Style/SymbolArray:
+  Enabled: false
+
+RSpec/FilePath:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
