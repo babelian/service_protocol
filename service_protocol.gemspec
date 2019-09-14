@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.files = Dir.glob('{lib}/**/*')
   s.require_paths = %w[lib]
 
+  s.add_runtime_dependency 'hutch', '0.25.0'
   s.add_runtime_dependency 'rack', '>= 2.0.0'
   s.add_runtime_dependency 'request_store', '>= 1.4.1'
 
