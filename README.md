@@ -13,10 +13,10 @@ Basic protocol for communicating between services via HTTP/JSON.
 
 ## Features
 
-* Designed to work with [ServiceOperation](https://babelian.semaphoreci.com/projects/service_operation) but can call any class that respond to `.call(params)`
-* Syncronizes metadata (`user_id`, `trace_id`, etc) between services via [RequestStore](https://github.com/steveklabnik/request_store)
-* Uses `#to_json` to serializes complex objects in JSON:API format.
-* [Redis Adapter](https://github.com/babelian/service_protocol)
+* Designed to work with [ServiceOperation](https://babelian.semaphoreci.com/projects/service_operation) but can call any class that respond to `.call(params)`.
+* Syncronizes metadata (`user_id`, `trace_id`, etc) between services via [RequestStore](https://github.com/steveklabnik/request_store).
+* Uses `#to_json` to serialize complex objects in JSON:API format.
+* [Redis Adapter](https://github.com/babelian/service_protocol).
 * Allows batched requests.
 
 
