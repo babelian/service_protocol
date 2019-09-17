@@ -1,40 +1,39 @@
 # frozen_string_literal: true
 
 require 'request_store'
-require 'ruby_extensions/all'
 
 module ServiceProtocol
   # RPC call to another app
-  # response = RemoteAction.call('content:items/get', id: 1)
-  class RemoteAction
-    attr_accessor :operation, :context, :meta, :response
+  # response = Remote.call('content:items/get', id: 1)
+  class Remote
+    attr_accessor :endpoint, :context, :meta, :response
 
     # Error
     class Error < StandardError
-      attr_reader :operation, :context, :meta
+      attr_reader :endpoint, :context, :meta
 
-      def initialize(operation, context, meta)
-        @operation = operation
+      def initialize(endpoint, context, meta)
+        @endpoint = endpoint
         @context = context
         @meta = meta
-        super("#{operation} failed: #{context.errors.inspect}")
+        super("#{endpoint} failed: #{context.errors.inspect}")
       end
     end
 
     class << self
-      # @param [String] operation 'service:action', 'service:namespaced/action'
+      # @param [String] endpoint 'service_name:operation', 'service_name:namespaced/operation'
       # @param [Hash] context
       # @param [Hash] any meta to pass through to the other service. Defaults
       #   (user_id, tenant_id will be mixed in automatically)
-      # @return [ValueObject] with context response
-      def call(operation, context = {}, meta = {})
-        new(operation, context, meta).call
+      # @return [Entity] with context response
+      def call(endpoint, context = {}, meta = {})
+        new(endpoint, context, meta).call
       end
 
-      def call!(operation, context = {}, meta = nil)
-        response = meta ? call(operation, context, meta) : call(operation, context)
+      def call!(endpoint, context = {}, meta = nil)
+        response = meta ? call(endpoint, context, meta) : call(endpoint, context)
 
-        raise Error.new(operation, response, meta || {}) if response.failure?
+        raise Error.new(endpoint, response, meta || {}) if response.failure?
 
         response
       end
@@ -53,18 +52,18 @@ module ServiceProtocol
     # Instance Methods
     #
 
-    # See {RemoteAction.call} for parameters
-    def initialize(operation, context, meta = {})
-      resolver = ServiceProtocol.configuration.resolver
-      @operation = resolver ? resolver.call(operation) : operation
+    # See {Remote.call} for parameters
+    def initialize(endpoint, context, meta = {})
+      resolver = ServiceProtocol.configuration.resolver || ->(endpoint) { endpoint }
+      @endpoint = resolver.call(endpoint)
       @context = context.to_h
       @meta = request_store_meta.merge(meta.to_h)
     end
 
-    # @return [ValueObject] with context response
+    # @return [Entity] with context response
     def call
-      @response = adapter.new(operation, context, meta).call
-      ValueObject.context response
+      @response = adapter.new(endpoint, context, meta).call
+      Entity.context response
     end
 
     private
@@ -94,4 +93,7 @@ module ServiceProtocol
       'development'
     end
   end
+
+  # @depreciated in 2.0.0
+  RemoteAction = Remote
 end

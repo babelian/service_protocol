@@ -5,31 +5,43 @@ require 'securerandom'
 module ServiceProtocol
   # @abstract
   class BaseClient
-    class TimeoutException < Exception; end
+    class TimeoutException < RuntimeError; end
 
-    attr_reader :operation, :params, :meta, :queued
+    attr_reader :endpoint, :params, :meta, :queued
+
+    #
+    # Class Methods
+    #
 
     class << self
-      def call(operation, params, meta)
-        new(operation, params, meta).call
+      # @param [String] endpoint, eg 'api.service_name:namespaced/operation'
+      # @param [Hash] params
+      # @param [Hash] meta
+      # @return [Hash] with stringified/json keys
+      def call(endpoint, params, meta)
+        new(endpoint, params, meta).call
       end
 
-      def queue(operation, params, meta)
-        new(operation, params, meta).queue
+      def queue(endpoint, params, meta)
+        new(endpoint, params, meta).queue
         {}
       end
     end
 
-    def initialize(operation, params, meta)
-      @operation = operation
+    #
+    # Instance Methods
+    #
+
+    def initialize(endpoint, params, meta)
+      @endpoint = endpoint
       @params = params
       @meta = meta
     end
 
-    # @abstract and used in specs to test {RemoteAction} {ProxyAction} integration
+    # @abstract, but used in specs to test {Remote} {Proxy} integration.
     def call
-      require 'service_protocol/proxy_action'
-      ProxyAction.call(action, params, meta)
+      require 'service_protocol/proxy'
+      Proxy.call(operation, params, meta)
     end
 
     def queue
@@ -39,9 +51,9 @@ module ServiceProtocol
 
     private
 
-    # namespaced/action
-    def action
-      operation.split(':').last.split('.').last
+    # namespaced/operation
+    def operation
+      endpoint.split(':').last.split('.').last
     end
 
     def call_id

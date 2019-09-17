@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ruby_extensions/module_extensions'
-
 # rubocop:disable all
 class Hash
   # https://www.rubydoc.info/github/rubyworks/facets/Hash:traverse
@@ -41,12 +39,17 @@ module ServiceProtocol
   autoload :BaseClient,     'service_protocol/base_client'
   autoload :Configuration,  'service_protocol/configuration'
   autoload :LibClient,      'service_protocol/lib_client'
-  autoload :ProxyAction,    'service_protocol/proxy_action'
-  autoload :RemoteAction,   'service_protocol/remote_action'
-  autoload :ValueObject,    'service_protocol/value_object'
+  autoload :Proxy,          'service_protocol/proxy'
+  autoload :Remote,         'service_protocol/remote'
+  autoload :Entity,         'service_protocol/entity'
   autoload :WebClient,      'service_protocol/web_client'
   autoload :WebServer,      'service_protocol/web_server'
   autoload :VERSION,        'service_protocol/version'
+
+  # @depreciated in 2.0.0
+  autoload :RemoteAction,   'service_protocol/remote'
+  autoload :ProxyAction,    'service_protocol/proxy'
+  autoload :ValueObject,    'service_protocol/entity'
 
   class << self
     attr_accessor :configuration

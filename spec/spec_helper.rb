@@ -4,7 +4,6 @@ require 'simplecov'
 SimpleCov.start
 
 require 'bundler/setup'
-require 'ruby_extensions/pry'
 require 'service_protocol'
 
 RSpec.configure do |config|

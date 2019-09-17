@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rack'
-require 'service_protocol/proxy_action'
+require 'service_protocol/proxy'
 require 'logger'
 
 module ServiceProtocol
@@ -26,22 +26,12 @@ module ServiceProtocol
       when '/health'
         HEALTHY_RESPONSE
       else
-        proxy_action
+        proxy
       end
     rescue StandardError => e
       render_error(e)
     ensure
       @input = nil
-    end
-
-    # give it some space in logs for debugging.
-    prepend_block do
-      def call(*args)
-        puts "\n\n\n"
-        super
-      ensure
-        puts "\n\n\n"
-      end
     end
 
     private
@@ -56,9 +46,9 @@ module ServiceProtocol
       'development'
     end
 
-    def proxy_action
+    def proxy
       if authenticates?
-        render 200, ServiceProtocol::ProxyAction.call(action, input[:params], input[:meta])
+        render 200, ServiceProtocol::Proxy.call(operation, input[:params], input[:meta])
       else
         render(401, error: 'Authentication Failed')
       end
@@ -69,9 +59,7 @@ module ServiceProtocol
     #
 
     def logger
-      instance_variable_memo do
-        defined?(LOGGER) ? LOGGER : Logger.new(STDOUT)
-      end
+      @logger ||= defined?(LOGGER) ? LOGGER : Logger.new(STDOUT)
     end
 
     def app
@@ -99,7 +87,7 @@ module ServiceProtocol
     # Request Data
     #
 
-    def action
+    def operation
       path[1..-1]
     end
 
@@ -108,7 +96,11 @@ module ServiceProtocol
     end
 
     def input
-      @input ||= JSON.parse(request.body.read.nil_if_empty || '{}', symbolize_names: true)
+      @input ||= begin
+        input = request.body.read
+        input = '{}' if input.empty?
+        JSON.parse(input, symbolize_names: true)
+      end
     end
 
     def path

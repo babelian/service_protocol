@@ -3,8 +3,9 @@
 require 'ostruct'
 
 module ServiceProtocol
-  # Generate  Struct-based value objects for {RemoteAction} to rehydrate with.
-  class ValueObject < Struct
+  # Generate  Struct-based value objects for {Remote} to rehydrate with.
+  # Expects JSON:API style data hashes.
+  class Entity < Struct
     OBJECT_KEYS = [:attributes, :id, :type].freeze
 
     class << self
@@ -65,7 +66,7 @@ module ServiceProtocol
       end
 
       def build_all_hashed_on_id(name, array, &block)
-        ValueObject.build_all(name, array, &block).each_with_object({}) do |obj, hash|
+        Entity.build_all(name, array, &block).each_with_object({}) do |obj, hash|
           hash[obj.id] = obj
         end
       end
@@ -86,12 +87,13 @@ module ServiceProtocol
           Object.const_set(name, struct)
         end
       end
-
-      private
     end
 
     def as_json(options = {})
       { 'id' => id, 'type' => self.class.name, 'attributes' => super(options).except('id') }
     end
   end
+
+  # @depreciated in 2.0.0
+  ValueObject = Entity
 end

@@ -4,21 +4,21 @@ require 'logger'
 require 'request_store'
 
 module ServiceProtocol
-  # Wrapper for receiving the RPC Request from the Server and calling the local Action
-  class ProxyAction
+  # Wrapper for receiving the RPC Request from the Server and calling the local Operation
+  class Proxy
     REQUIRED_META_KEYS = [:user_id, :tenant_id].freeze
 
-    attr_reader :action, :context
+    attr_reader :operation, :context
 
     class << self
-      def call(action, params, meta)
+      def call(operation, params, meta)
         add_meta_to_request_store(meta) do
-          if action.include?('$batch')
-            namespace = action.sub('$batch', '')
-            params[:requests].values.each { |v| v[:action] = "#{namespace}#{v[:action]}" }
+          if operation.include?('$batch')
+            namespace = operation.sub('$batch', '')
+            params[:requests].values.each { |v| v[:operation] = "#{namespace}#{v[:operation]}" }
             batch(params)
           else
-            new(action, params).call
+            new(operation, params).call
           end
         end
       end
@@ -47,30 +47,30 @@ module ServiceProtocol
       # to include dependencies/async processing/abort etc
       def batch(params)
         responses = params[:requests].each_with_object({}) do |(k, v), h|
-          h[k] = new(v[:action], v[:params]).call
+          h[k] = new(v[:operation], v[:params]).call
         end
 
         { responses: responses }
       end
     end
 
-    def initialize(action, context)
-      @action = ServiceProtocol.constantizer(action)
+    def initialize(operation, context)
+      @operation = ServiceProtocol.constantizer(operation)
       @context = context
 
       raise_if_internal
     end
 
     def call
-      as_json action.call(context)
+      as_json operation.call(context)
     end
 
     def as_json(output = context)
       hash = output.to_h
 
       # convert ServiceProtocol Context into a json hash based on its attribute config.
-      if action.respond_to?(:attributes)
-        attributes = action.attributes.select(&:log)
+      if operation.respond_to?(:attributes)
+        attributes = operation.attributes.select(&:log)
         hash = hash.slice(*attributes.map(&:name) + [:errors])
 
         attributes.each do |attr|
@@ -96,25 +96,26 @@ module ServiceProtocol
     private
 
     def logger
-      instance_variable_memo do
-        defined?(LOGGER) ? LOGGER : Logger.new(STDOUT)
-      end
+      @logger ||= defined?(LOGGER) ? LOGGER : Logger.new(STDOUT)
     end
 
     # @todo security: only works on classes that implement allow_remote but should block all.
     def raise_if_internal
-      return unless action.respond_to?(:allow_remote) && action.allow_remote
+      return unless operation.respond_to?(:allow_remote) && operation.allow_remote
 
-      raise "#{action} does not allow remote access"
+      raise "#{operation} does not allow remote access"
     rescue StandardError => e # disabled due to possible Thread issues.
       logger.warn(context.to_h.merge(warn: e.message))
       # raise e
     end
 
     def return_keys
-      return unless action.respond_to?(:attributes)
+      return unless operation.respond_to?(:attributes)
 
-      action.attributes.select(&:log).map(&:name) + [:errors]
+      operation.attributes.select(&:log).map(&:name) + [:errors]
     end
   end
+
+  # @depreciated in 2.0.0
+  ProxyAction = Proxy
 end

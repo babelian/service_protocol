@@ -14,7 +14,7 @@ RSpec.describe ServiceProtocol::WebServer do
     }
   end
 
-  let(:path) { '/test/action' }
+  let(:path) { '/test/operation' }
 
   let(:request) do
     {
@@ -36,8 +36,8 @@ RSpec.describe ServiceProtocol::WebServer do
   end
 
   module Test
-    # Dummy Action
-    class Action
+    # Dummy Operation
+    class Operation
       class << self
         def call(input)
           { params: input, meta: RequestStore.store, done: true }
@@ -55,7 +55,7 @@ RSpec.describe ServiceProtocol::WebServer do
     end
   end
 
-  context '/namespaced/action' do
+  context '/namespaced/operation' do
     before do
       ENV['SERVICE_PROTOCOL_TOKEN'] = token
     end
@@ -88,7 +88,7 @@ RSpec.describe ServiceProtocol::WebServer do
       ENV['SERVICE_PROTOCOL_PATH_PREFIX'] = '/prefix'
     end
 
-    let(:path) { '/prefix/test/action' }
+    let(:path) { '/prefix/test/operation' }
 
     it 'removes prefix' do
       expect(status).to eq(200)

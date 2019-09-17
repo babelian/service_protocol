@@ -39,12 +39,12 @@ module ServiceProtocol
     private
 
     alias host service_name
-    alias path action
+    alias path operation
 
     def headers
       {
-        'X-SERVICE-PROTOCOL-TOKEN' => token,
-        'Content-Type' => 'application/json'
+        'Content-Type' => 'application/json',
+        'X-SERVICE-PROTOCOL-TOKEN' => token
       }
     end
 

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe ServiceProtocol::ValueObject do
+RSpec.describe ServiceProtocol::Entity do
   let(:data) do
     { id: 1, full_name: 'Blah', rel_id: 7 }
   end
@@ -30,23 +30,23 @@ RSpec.describe ServiceProtocol::ValueObject do
   end
 
   describe '.build' do
-    let(:class_name) { 'TestValueObjectBuild' }
-    let(:value_object) { described_class.build('TestValueObjectBuild', data) }
+    let(:class_name) { 'TestEntityBuild' }
+    let(:entity) { described_class.build('TestEntityBuild', data) }
 
     it 'build a class Item that extends Struct' do
-      expect(value_object).to be_a(Struct)
-      expect(value_object).to be_a(TestValueObjectBuild)
+      expect(entity).to be_a(Struct)
+      expect(entity).to be_a(TestEntityBuild)
     end
 
     it 'adds the data' do
       data.each do |k, v|
-        expect(value_object.send(k)).to eq(v)
+        expect(entity.send(k)).to eq(v)
       end
     end
   end
 
   describe '.build_all' do
-    let(:class_name) { 'TestValueObjectBuildAll' }
+    let(:class_name) { 'TestEntityBuildAll' }
 
     it 'allows you to edit each object during the loop' do
       numbers = [1, 2]
@@ -60,7 +60,7 @@ RSpec.describe ServiceProtocol::ValueObject do
   end
 
   describe '.build_all_hashed_on_id' do
-    let(:class_name) { 'TestValueObjectBuildAllHashed' }
+    let(:class_name) { 'TestEntityBuildAllHashed' }
 
     it 'creates a hash with the objects keyed by their id' do
       hash = described_class.build_all_hashed_on_id(class_name, [data, data])
@@ -71,7 +71,7 @@ RSpec.describe ServiceProtocol::ValueObject do
   end
 
   describe '.class_for' do
-    let(:class_name) { 'TestValueObjectClassFor' }
+    let(:class_name) { 'TestEntityClassFor' }
     let(:column_names) { [:attr1, :attr2, :rel_id] }
     let(:klass) { described_class.class_for(class_name, column_names) }
 

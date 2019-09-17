@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe ServiceProtocol::RemoteAction do
-  let(:operation) { 'name:namespace/action' }
+  let(:endpoint) { 'name:namespace/operation' }
 
   let(:context) do
     { data: 1 }
@@ -18,10 +18,10 @@ RSpec.describe ServiceProtocol::RemoteAction do
   end
 
   describe '.call' do
-    let(:call) { described_class.call(operation, context) }
+    let(:call) { described_class.call(endpoint, context) }
 
     before do
-      allow(described_class).to receive(:new).with(operation, context, {}).and_return(fake_subject)
+      allow(described_class).to receive(:new).with(endpoint, context, {}).and_return(fake_subject)
     end
 
     it 'works' do
@@ -30,33 +30,33 @@ RSpec.describe ServiceProtocol::RemoteAction do
   end
 
   describe '#call!' do
-    it 'raises an RemoteAction::Error if the response is a failure'
+    it 'raises an Remote::Error if the response is a failure'
   end
 
   describe '.new' do
-    describe 'operation resolver' do
-      let(:example_operation) { 'api.service_protocol/operation_name' }
+    describe 'endpoint resolver' do
+      let(:example_endpoint) { 'api.service_protocol/endpoint_name' }
 
-      let(:resolved_operation) do
-        described_class.new(example_operation, {}, {}).operation
+      let(:resolved_endpoint) do
+        described_class.new(example_endpoint, {}, {}).endpoint
       end
 
       it 'by default passes through' do
-        expect(resolved_operation).to eq(example_operation)
+        expect(resolved_endpoint).to eq(example_endpoint)
       end
 
       it 'can be customized via ServiceProtocol.configuration.resolver proc' do
         ServiceProtocol.configure do |config|
-          config.resolver = ->(o) { o.sub('operation_name', 'new_name') }
+          config.resolver = ->(o) { o.sub('endpoint_name', 'new_name') }
         end
-        expect(resolved_operation).to eq 'api.service_protocol/new_name'
+        expect(resolved_endpoint).to eq 'api.service_protocol/new_name'
       end
     end
   end
 
-  describe 'integration with ProxyAction' do
-    # TestAction
-    class TestAction
+  describe 'integration with Proxy' do
+    # TestOperation
+    class TestOperation
       class << self
         attr_accessor :allow_remote
 
@@ -67,16 +67,15 @@ RSpec.describe ServiceProtocol::RemoteAction do
     end
 
     module NameService
-      class TestAction < ::TestAction
+      class TestOperation < ::TestOperation
       end
     end
 
-    let(:operation) { 'name:test_action' }
+    let(:endpoint) { 'name:test_operation' }
 
     let(:context) do
-      described_class.call(operation, one: 1, two: 2)
+      described_class.call(endpoint, one: 1, two: 2)
     end
-
 
     let(:configure_namespace) do
       ServiceProtocol.configure do |config|
@@ -90,7 +89,7 @@ RSpec.describe ServiceProtocol::RemoteAction do
     before do
       ENV['SERVICE_PROTOCOL'] = 'base'
       RequestStore.store.merge!(user_id: 1, tenant_id: 1)
-      TestAction.allow_remote = true
+      TestOperation.allow_remote = true
     end
 
     after do
@@ -108,13 +107,13 @@ RSpec.describe ServiceProtocol::RemoteAction do
       end
     end
 
-    describe 'can do batch actions' do
+    describe 'can do batch operations' do
       let(:context) do
         described_class.call(
           'name:$batch',
           requests: {
-            one: { action: 'test_action', params: { one: 1, two: 2 } },
-            two: { action: 'test_action', params: { one: 3, two: 4 } }
+            one: { operation: 'test_operation', params: { one: 1, two: 2 } },
+            two: { operation: 'test_operation', params: { one: 3, two: 4 } }
           }
         )
       end
@@ -133,7 +132,7 @@ RSpec.describe ServiceProtocol::RemoteAction do
     it 'filters output'
 
     # it 'raises if internal' do
-    #   TestAction.allow_remote = false
+    #   TestOperation.allow_remote = false
     #   expect { context.warn }.to raise_error(/remote/)
     # end
 
