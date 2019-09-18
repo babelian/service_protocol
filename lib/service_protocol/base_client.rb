@@ -62,7 +62,7 @@ module ServiceProtocol
 
     # api.service
     def routing
-      operation.split(':').first
+      endpoint.split(':').first
     end
 
     # service
