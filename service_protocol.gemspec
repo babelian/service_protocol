@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'pry-byebug'
   s.add_development_dependency 'rack-test', '0.8.3'
-  s.add_development_dependency 'rake', '12.3.2'
+  s.add_development_dependency 'rake', '13.0.1'
   s.add_development_dependency 'rspec', '3.7.0'
   s.add_development_dependency 'simplecov', '0.16.1'
 end
